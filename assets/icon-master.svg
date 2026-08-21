@@ -9,10 +9,11 @@
        so this must be solid. The OS applies its own shape mask (circle/squircle/rounded-square) on top. -->
   <rect x="0" y="0" width="512" height="512" fill="#EBF2FA"/>
 
-  <!-- 2x2 tile grid, scaled to ~62% of canvas so it stays inside Android's adaptive-icon safe zone (66%)
-       and doesn't get cropped by aggressive launcher masks. Same colors/ratio as the original design. -->
-  <rect x="98" y="98" width="136" height="136" rx="26" fill="#CAF0F8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="279" y="98" width="136" height="136" rx="26" fill="#90E0EF" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="98" y="279" width="136" height="136" rx="26" fill="#00B4D8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="279" y="279" width="136" height="136" rx="26" fill="#0077B6" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <!-- 2x2 tile grid, scaled to ~50% of canvas — very conservative safe-zone sizing so aggressive
+       OEM launchers (which zoom/crop well beyond the official 66% safe zone) don't clip the tiles.
+       Same colors/ratio as the original design. -->
+  <rect x="128" y="128" width="110" height="110" rx="21" fill="#CAF0F8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="274" y="128" width="110" height="110" rx="21" fill="#90E0EF" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="128" y="274" width="110" height="110" rx="21" fill="#00B4D8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="274" y="274" width="110" height="110" rx="21" fill="#0077B6" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
 </svg>
