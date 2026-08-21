@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>My Tiles Calculator - Ultimate Edition</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#1E5F8C" />
+<link rel="icon" href="assets/icon-192.png" />
+<link rel="apple-touch-icon" href="assets/icon-192.png" />
+<style>
+/* Fonts loaded locally from /assets/fonts so the app works fully offline */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('assets/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans Bengali'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/nsb-400.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans Bengali'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/nsb-500.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans Bengali'; font-style: normal; font-weight: 600; font-display: swap; src: url('assets/fonts/nsb-600.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans Bengali'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/nsb-700.woff2') format('woff2'); }
+
+/* Keep our own colors even if the OS/browser "increase contrast"
+   (forced-colors) mode is turned on, so the app always looks the same */
+html {
+  forced-color-adjust: none;
+}
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: none;
+  }
+}
+
+:root {
+  --bg: #FCFEFF;
+  --surface: #FFFFFF;
+  --surface-2: #F2F9FC;
+  --ink: #1E2925;
+  --ink-soft: #5C6B65;
+  --ink-faint: #8D9A94;
+  --border: #E3EDF4;
+
+  /* Each calculator section gets its own clearly distinct, classic
+     accent color so the tabs are easy to tell apart at a glance */
+  --floor: #1D5B8A;
+  --floor-ink: #123E5C;
+  --floor-soft: #E4EEF5;
+  --floor-border: #AECBDD;
+
+  --skirt: #2F8F72;
+  --skirt-ink: #1D5F4B;
+  --skirt-soft: #E7F5EF;
+  --skirt-border: #B4DECC;
+
+  --wall: #B5651D;
+  --wall-ink: #8A4A15;
+  --wall-soft: #FBEFE2;
+  --wall-border: #E8C9A4;
+
+  --tak: #6B3BA7;
+  --tak-ink: #4B2A78;
+  --tak-soft: #F0EAFA;
+  --tak-border: #D6C6EF;
+
+  --stair: #C2410C;
+  --stair-ink: #8C2F08;
+  --stair-soft: #FCEEE6;
+  --stair-border: #F0C7A8;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  --font-display: 'Inter', 'Noto Sans Bengali', sans-serif;
+  --font-body: 'Inter', 'Noto Sans Bengali', sans-serif;
+
+  --shadow: 0 1px 2px rgba(30,41,36,0.04), 0 6px 18px rgba(30,41,36,0.05);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { min-height: 100vh; }
+
+::selection { background: var(--floor-soft); color: var(--floor-ink); }
+
+a { color: inherit; }
+
+button, input, select { font-family: inherit; }
+
+/* ---------- App shell ---------- */
+
+.app-shell {
+  max-width: clamp(320px, 94vw, 1180px);
+  margin: 0 auto;
+  padding: 0 clamp(12px, 3vw, 28px) clamp(48px, 8vw, 72px);
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 4px 22px;
+  flex-wrap: wrap;
+}
+
+.app-mark {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: block;
+  filter: drop-shadow(0 2px 5px rgba(20,27,24,0.14));
+}
+.app-mark svg { width: 100%; height: 100%; display: block; }
+
+.app-titles { flex: 1 1 auto; min-width: 0; }
+.app-titles h1 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw + 14px, 25px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+.app-titles p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+/* ---------- Language toggle switch ---------- */
+
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+
+/* On narrow screens keep the header on one line: shrink title/subtitle
+   instead of letting the toggle wrap away and disappear off-screen. */
+@media (max-width: 480px) {
+  .app-header { flex-wrap: nowrap; gap: 8px; }
+  .app-titles h1 { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-titles p { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-mark { width: 36px; height: 36px; }
+  .lang-toggle { gap: 6px; padding: 5px 8px; }
+  .lang-lbl { font-size: 11px; }
+}
+.lang-lbl {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  cursor: pointer;
+  user-select: none;
+  transition: color .15s;
+}
+.lang-lbl.active { color: var(--ink); }
+.lang-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.lang-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.lang-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  transition: .2s;
+  border-radius: 999px;
+}
+.lang-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2.5px;
+  top: 2.5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(30,41,36,0.15);
+  transition: .2s;
+  border-radius: 50%;
+}
+.lang-switch input:checked + .lang-slider {
+  background: var(--floor);
+  border-color: var(--floor);
+}
+.lang-switch input:checked + .lang-slider:before {
+  transform: translateX(18px);
+  border-color: var(--floor);
+}
+
+/* ---------- Calculator tabs (calc-nav pattern) ---------- */
+
+.calc-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 20px;
+}
+.calc-nav-item {
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.calc-nav-item.active {
+  background: var(--surface-2);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: clamp(14px, 2vw, 20px);
+  align-items: start;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ---------- Card surface ---------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(30,41,36,0.03);
+  padding: clamp(18px, 3vw, 30px) clamp(16px, 3vw, 30px) clamp(16px, 2.5vw, 26px);
+}
+
+.sec {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.ig { display: flex; flex-direction: column; gap: 6px; }
+.ig label { font-size: 13px; color: var(--ink-soft); font-weight: 500; }
+.ig input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 11px;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--surface-2);
+  outline: none;
+}
+.ig input:focus { border-color: var(--floor); background: var(--surface); }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+
+/* ---------- Mode / shape toggle (dim vs sqft, straight vs L-shape) ---------- */
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--surface-2);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.mode-toggle label { flex: 1; cursor: pointer; }
+.mode-toggle input[type="radio"] { display: none; position: absolute; }
+.mode-btn {
+  text-align: center;
+  padding: 9px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-radius: 6px;
+}
+.mode-toggle input[type="radio"]:checked + .mode-btn {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.glabel {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0 0 16px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+}
+.glabel.fl { color: var(--floor-ink); border-bottom-color: var(--floor-border); }
+.glabel.sk { color: var(--skirt-ink); border-bottom-color: var(--skirt-border); }
+.glabel.wl { color: var(--wall-ink); border-bottom-color: var(--wall-border); }
+.glabel.tk { color: var(--tak-ink); border-bottom-color: var(--tak-border); }
+.glabel.st { color: var(--stair-ink); border-bottom-color: var(--stair-border); }
+.glabel.tt { color: var(--ink); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+}
+.clabel { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 4px; }
+.cval { font-size: clamp(19px, 1.6vw + 15px, 26px); font-weight: 600; color: var(--ink); margin: 0; font-variant-numeric: tabular-nums; }
+.cunit { font-size: 11.5px; color: var(--ink-faint); }
+
+.final-bar {
+  border-radius: var(--radius-sm);
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.final-bar.fl { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--floor); }
+.final-bar.sk { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--skirt); }
+.final-bar.wl { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--wall); }
+.final-bar.tk { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--tak); }
+.final-bar.st { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--stair); }
+.final-bar.warn { background: #FDECEC; border: 1px solid #F3B4B4; border-left: 4px solid #B3261E; }
+.final-bar.tt { background: linear-gradient(135deg, #0077B6, #00B4D8); border: 1.5px solid #0077B6; }
+.flabel { font-size: 13.5px; font-weight: 700; }
+.final-bar.fl .flabel, .final-bar.sk .flabel, .final-bar.wl .flabel,
+.final-bar.tk .flabel, .final-bar.st .flabel { color: var(--ink); }
+.final-bar.warn .flabel { color: #7A1F1A; }
+.final-bar.tt .flabel { color: #FFFFFF; }
+.fsub { font-size: 11.5px; opacity: 0.85; margin-top: 1px; }
+.final-bar.fl .fsub, .final-bar.sk .fsub, .final-bar.wl .fsub,
+.final-bar.tk .fsub, .final-bar.st .fsub { color: var(--ink-soft); }
+.final-bar.warn .fsub { color: #7A1F1A; }
+.final-bar.tt .fsub { color: #E3F6FC; }
+.fval { font-size: clamp(23px, 2vw + 18px, 32px); font-weight: 700; font-variant-numeric: tabular-nums; }
+.final-bar.fl .fval { color: var(--floor-ink); }
+.final-bar.sk .fval { color: var(--skirt-ink); }
+.final-bar.wl .fval { color: var(--wall-ink); }
+.final-bar.tk .fval { color: var(--tak-ink); }
+.final-bar.st .fval { color: var(--stair-ink); }
+.final-bar.warn .fval { color: #B3261E; }
+.final-bar.tt .fval { color: #CAF0F8; }
+.funit { font-size: 13px; }
+.final-bar.fl .funit, .final-bar.sk .funit, .final-bar.wl .funit,
+.final-bar.tk .funit, .final-bar.st .funit { color: var(--ink-soft); }
+.final-bar.warn .funit { color: #7A1F1A; }
+.final-bar.tt .funit { color: #E3F6FC; }
+
+/* ---------- Wall-tab row-distribution status card ----------
+   (function names/classList calls come from the untouched logic —
+   these rules just re-skin .status-bar/.error/.success/.st-* to the
+   final-bar visual language above.) */
+
+.status-bar {
+  border-radius: var(--radius-sm);
+  padding: 15px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.status-bar.success { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--wall); }
+.status-bar.error { background: #FDECEC; border: 1px solid #F3B4B4; border-left: 4px solid #B3261E; }
+.st-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.st-sub { font-size: 11.5px; margin-top: 2px; color: var(--ink-soft); }
+.status-bar.error .st-title, .status-bar.error .st-sub { color: #7A1F1A; }
+.st-badge { font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+.status-bar.success .st-badge { background: var(--wall-soft); color: var(--wall-ink); }
+.status-bar.error .st-badge { background: #FDE8E8; color: #B3261E; }
+
+.app-footer {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  padding-top: 28px;
+}
+
+/* Sizing above (app-shell, panel, titles, cval, fval) uses clamp() so
+   it scales continuously with the viewport — phone, tablet, laptop,
+   ultra-wide monitor — instead of jumping between fixed breakpoints.
+   One stacked layout for every device. */
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="app-mark" aria-hidden="true">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="44" height="44" rx="11" fill="#EBF2FA"/>
+        <rect x="0.75" y="0.75" width="42.5" height="42.5" rx="10.5" fill="none" stroke="rgba(18,40,66,0.10)" stroke-width="1"/>
+        <rect x="7" y="7" width="13" height="13" rx="3.2" fill="#CAF0F8"/>
+        <rect x="7" y="7" width="13" height="13" rx="3.2" fill="none" stroke="rgba(18,40,66,0.10)" stroke-width="0.6"/>
+        <rect x="24" y="7" width="13" height="13" rx="3.2" fill="#90E0EF"/>
+        <rect x="24" y="7" width="13" height="13" rx="3.2" fill="none" stroke="rgba(18,40,66,0.10)" stroke-width="0.6"/>
+        <rect x="7" y="24" width="13" height="13" rx="3.2" fill="#00B4D8"/>
+        <rect x="7" y="24" width="13" height="13" rx="3.2" fill="none" stroke="rgba(18,40,66,0.10)" stroke-width="0.6"/>
+        <rect x="24" y="24" width="13" height="13" rx="3.2" fill="#0077B6"/>
+        <rect x="24" y="24" width="13" height="13" rx="3.2" fill="none" stroke="rgba(18,40,66,0.10)" stroke-width="0.6"/>
+      </svg>
+    </div>
+    <div class="app-titles">
+      <h1>My Tiles Calculator</h1>
+      <p data-en="Ultimate Edition — Floor, Wall, Shelf & Stairs">Ultimate Edition — ফ্লোর, ওয়াল, তাক ও সিঁড়ি</p>
+    </div>
+    <div class="lang-toggle">
+      <span class="lang-lbl active" id="lblBn" onclick="setLanguage('bn')">বাংলা</span>
+      <label class="lang-switch">
+        <input type="checkbox" id="langSwitch" onchange="setLanguage(this.checked ? 'en' : 'bn')" />
+        <span class="lang-slider"></span>
+      </label>
+      <span class="lang-lbl" id="lblEn" onclick="setLanguage('en')">EN</span>
+    </div>
+  </header>
+
+  <nav class="calc-nav">
+    <button class="calc-nav-item tab-btn active" onclick="switchTab('floor-tab', this)" data-en="Floor Tiles">ফ্লোর টাইলস</button>
+    <button class="calc-nav-item tab-btn" onclick="switchTab('wall-tab', this)" data-en="Wall Tiles">ওয়াল টাইলস</button>
+    <button class="calc-nav-item tab-btn" onclick="switchTab('tak-tab', this)" data-en="Shelf / Kitchen Slab">তাক / কিচেন স্ল্যাব</button>
+    <button class="calc-nav-item tab-btn" onclick="switchTab('stair-tab', this)" data-en="Stair Tiles">সিঁড়ির টাইলস</button>
+  </nav>
+
+  <!-- ১. ফ্লোর + স্কার্টিং ট্যাব -->
+  <div id="floor-tab" class="tab-content active">
+    <div class="calc-grid">
+
+      <div class="panel">
+        <p class="sec" data-en="Floor Measurement Type">ফ্লোরের পরিমাপের ধরন</p>
+        <div class="mode-toggle">
+          <label><input type="radio" name="floorMode" value="dim" checked /><div class="mode-btn" data-en="Length × Width (ft)">দৈর্ঘ্য × প্রস্থ (ফিট)</div></label>
+          <label><input type="radio" name="floorMode" value="sqft" /><div class="mode-btn" data-en="Direct Sqft">সরাসরি বর্গফুট</div></label>
+        </div>
+        <div id="fDimInputs" class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Length (ft)">দৈর্ঘ্য (ফিট)</label><input type="number" id="fLen" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width (ft)">প্রস্থ (ফিট)</label><input type="number" id="fWid" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div id="fSqftInputs" class="grid2" style="display: none; margin-bottom:0;">
+          <div class="ig"><label data-en="Total Floor (Sqft)">মোট ফ্লোর (বর্গফুট)</label><input type="number" id="fSqft" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Total Perimeter (ft) [Optional]">মোট পরিধি (ফিট) [ঐচ্ছিক]</label><input type="number" id="fCustomPerimeter" placeholder="ঐচ্ছিক (ডিফল্ট বর্গক্ষেত্র)" data-en-ph="Optional (default: square)" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Tile Size & Packing">টাইলসের মাপ ও প্যাকিং</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Length (in)">দৈর্ঘ্য (ইঞ্চি)</label><input type="number" id="fTileL" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width (in)">প্রস্থ (ইঞ্চি)</label><input type="number" id="fTileW" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Wastage (%)">ওয়েস্টেজ (%)</label><input type="number" id="fWastage" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Tiles per Box (pcs)">প্রতি বক্সে টাইলস (পিস)</label><input type="number" id="fPerBox" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Price (Optional)">মূল্য (ঐচ্ছিক)</p>
+        <div class="ig"><label data-en="Price per Tile (৳)">প্রতি টাইলসের দাম (৳)</label><input type="number" id="pricePerTile" placeholder="0" min="0" step="any" /></div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="SKIRTING Measurement">SKIRTING মাপ</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Number of Doors">দরজা সংখ্যা</label><input type="number" id="sDoorQty" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width per Door (ft)">প্রতি দরজার চওড়া (ফিট)</label><input type="number" id="sDoorWidth" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Skirting Height (in)">Skirting উচ্চতা (ইঞ্চি)</label><input type="number" id="sHt" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Wastage (%)">ওয়েস্টেজ (%)</label><input type="number" id="sWastage" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel fl" data-en="FLOOR Tiles">FLOOR টাইলস</div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="card"><p class="clabel" data-en="Floor Area">ফ্লোরের এরিয়া</p><p class="cval" id="resFArea">0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Single Tile">একটা টাইলস</p><p class="cval" id="resSingleArea">0.00</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+        </div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="card"><p class="clabel" data-en="Floor Tiles (Raw)">Floor টাইলস (Raw)</p><p class="cval" id="resFRaw">0</p><span class="cunit" data-en="pcs">পিস</span></div>
+        </div>
+        <div class="final-bar fl">
+          <div><div class="flabel" data-en="Floor Tiles (with Wastage)">Floor টাইলস (ওয়েস্টেজ সহ)</div><div class="fsub" data-en="Rounded up">রাউন্ড আপ করা</div></div>
+          <div><span class="fval" id="resFFinal">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel sk" data-en="SKIRTING Tiles">SKIRTING টাইলস</div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="card"><p class="clabel" data-en="Perimeter (excl. doors)">পরিধি (দরজা বাদে)</p><p class="cval" id="resSPeri">0.0</p><span class="cunit" data-en="ft">ফিট</span></div>
+          <div class="card"><p class="clabel" data-en="Skirting Area">Skirting এরিয়া</p><p class="cval" id="resSArea">0.00</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+        </div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="card"><p class="clabel" data-en="Skirting Tiles (Raw)">Skirting টাইলস (Raw)</p><p class="cval" id="resSRaw">0</p><span class="cunit" data-en="pcs">পিস</span></div>
+        </div>
+        <div class="final-bar sk">
+          <div><div class="flabel" data-en="Skirting Tiles (with Wastage)">Skirting টাইলস (ওয়েস্টেজ সহ)</div><div class="fsub" data-en="Rounded up">রাউন্ড আপ করা</div></div>
+          <div><span class="fval" id="resSFinal">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel tt" data-en="Grand Total & Showroom Calculation">সর্বমোট ও শোরুম হিসাব</div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Total Tiles">সর্বমোট টাইলস</div><div class="fsub">Floor + Skirting</div></div>
+          <div><span class="fval" id="resTotalTiles">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Required Boxes (Carton)">প্রয়োজনীয় বক্স (Carton)</div><div class="fsub" data-en="Rounded up to full box">ফুল বক্স রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="resTotalBoxes">0</span><span class="funit" data-en=" boxes"> বক্স</span></div>
+        </div>
+        <div class="final-bar tt">
+          <div><div class="flabel" data-en="Total Price">সর্বমোট মূল্য</div><div class="fsub" id="resPriceCalcSub">0 × ৳0</div></div>
+          <div><span class="fval" id="resTotalPrice">0</span><span class="funit"> ৳</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ২. ওয়াল টাইলস ট্যাব -->
+  <div id="wall-tab" class="tab-content">
+    <div class="calc-grid">
+
+      <div class="panel">
+        <p class="sec" data-en="Wall Measurement Type">দেয়ালের পরিমাপের ধরন</p>
+        <div class="mode-toggle">
+          <label><input type="radio" name="wallMode" value="dim" checked /><div class="mode-btn" data-en="Perimeter × Height">পরিধি × উচ্চতা</div></label>
+          <label><input type="radio" name="wallMode" value="sqft" /><div class="mode-btn" data-en="Direct Sqft">সরাসরি বর্গফুট</div></label>
+        </div>
+        <div id="wDimInputs" class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Total Perimeter/Length (ft)">মোট পরিধি/দৈর্ঘ্য (ফিট)</label><input type="number" id="wallLen" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Wall Height (ft)">দেয়ালের উচ্চতা (ফিট)</label><input type="number" id="wallHt" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div id="wSqftInputs" class="grid2" style="display: none; margin-bottom:0;">
+          <div class="ig"><label data-en="Total Wall (Sqft)">মোট দেয়াল (বর্গফুট)</label><input type="number" id="totalWallSqftInput" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Wall Height (ft)">দেয়ালের উচ্চতা (ফিট)</label><input type="number" id="wallSqftHt" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Tile Size & Packing">টাইলসের মাপ ও প্যাকিং</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Height (in)">উচ্চতা (ইঞ্চি)</label><input type="number" id="wTileW" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Length (in)">দৈর্ঘ্য (ইঞ্চি)</label><input type="number" id="wTileL" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Wastage (%)">ওয়েস্টেজ (%)</label><input type="number" id="wWastage" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Tiles per Box (pcs)">প্রতি বক্সে টাইলস (পিস)</label><input type="number" id="wPerBox" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Price (Optional)">মূল্য (ঐচ্ছিক)</p>
+        <div class="ig"><label data-en="Price per Tile (৳)">প্রতি টাইলসের দাম (৳)</label><input type="number" id="wPricePerTile" placeholder="0" min="0" step="any" /></div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Row Distribution (horizontal rows)">সারির সংখ্যা বণ্টন (অনুভূমিক সারি)</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Light (rows)">লাইট (সারি)</label><input type="number" id="splitLight" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Decorate (rows)">ডেকরেট (সারি)</label><input type="number" id="splitHL" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig" style="grid-column: span 2;"><label data-en="Diff / Dark (rows)">ডিফ / ডার্ক (সারি)</label><input type="number" id="splitDark" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Additional Deduction">অতিরিক্ত বাদ দেওয়া</p>
+        <div class="ig"><label data-en="Door/Window Deduction (Sqft)">দরজা/জানালা বাদ (বর্গফুট)</label><input type="number" id="deductSqft" placeholder="0" min="0" step="any" /></div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel wl" data-en="Wall & Column Layout">দেয়াল ও কলাম লেআউট</div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="card"><p class="clabel" data-en="Wall Height">দেয়ালের উচ্চতা</p><p class="cval" id="outWallHt">0.0</p><span class="cunit" data-en="ft">ফিট</span></div>
+          <div class="card"><p class="clabel" data-en="Tiles per Column">প্রতি কলামে টাইলস</p><p class="cval" id="outTilesPerCol">0.00</p><span class="cunit" data-en="pcs">পিস</span></div>
+          <div class="card" style="grid-column: span 2;"><p class="clabel" data-en="Total Columns">মোট কলাম সংখ্যা</p><p class="cval" id="outTotalCols">0.0</p><span class="cunit" data-en="columns">কলাম</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel wl" data-en="Tile Type Distribution">টাইলস প্রকারভেদ বণ্টন</div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="card"><p class="clabel" data-en="Total Light">মোট লাইট</p><p class="cval" id="outLight">0</p><span class="cunit" data-en="pcs">পিস</span></div>
+          <div class="card"><p class="clabel" data-en="Total Decorate">মোট ডেকরেট</p><p class="cval" id="outHL">0</p><span class="cunit" data-en="pcs">পিস</span></div>
+          <div class="card" style="grid-column: span 2;"><p class="clabel" data-en="Total Diff / Dark">মোট ডিফ / ডার্ক</p><p class="cval" id="outDark">0</p><span class="cunit" data-en="pcs">পিস</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel tt" data-en="Grand Total & Showroom Calculation">সর্বমোট ও শোরুম হিসাব</div>
+        <div id="statusCard" class="status-bar error">
+          <div>
+            <div class="st-title" data-en="Row Ratio Status">সারির অনুপাত স্থিতি</div>
+            <div class="st-sub" id="statusMsg">উপরে সঠিক মাপ ইনপুট দিন</div>
+          </div>
+          <div class="st-badge" id="statusBadge"><span id="statusIcon">⚠️</span> <span id="statusText">অপেক্ষমাণ</span></div>
+        </div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Total Wall Tiles">সর্বমোট ওয়াল টাইলস</div><div class="fsub" data-en="With wastage">ওয়েস্টেজ সহ</div></div>
+          <div><span class="fval" id="kpiTotal">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Required Boxes (Carton)">প্রয়োজনীয় বক্স (Carton)</div><div class="fsub" data-en="Rounded up to full box">ফুল বক্স রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="outWallBoxes">0</span><span class="funit" data-en=" boxes"> বক্স</span></div>
+        </div>
+        <div class="final-bar tt">
+          <div><div class="flabel" data-en="Total Price">সর্বমোট মূল্য</div><div class="fsub" id="outWallPriceSub">0 × ৳0</div></div>
+          <div><span class="fval" id="outWallTotalPrice">0</span><span class="funit"> ৳</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ৩. তাক / কিচেন স্ল্যাব ট্যাব -->
+  <div id="tak-tab" class="tab-content">
+    <div class="calc-grid">
+
+      <div class="panel">
+        <p class="sec" data-en="Shelf Shape">তাকের আকার (Shape)</p>
+        <div class="mode-toggle">
+          <label><input type="radio" name="takShape" value="straight" checked /><div class="mode-btn" data-en="Straight">সোজা (Straight)</div></label>
+          <label><input type="radio" name="takShape" value="lshape" /><div class="mode-btn" data-en="L-Shape">এল-শেপ (L-Shape)</div></label>
+        </div>
+        <div id="straightInputs" class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Length (ft)">দৈর্ঘ্য (ফিট)</label><input type="number" id="tLen1" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width (in)">চওড়া/প্রস্থ (ইঞ্চি)</label><input type="number" id="tWid" placeholder="24" min="0" step="any" /></div>
+        </div>
+        <div id="lshapeInputs" class="grid2" style="display: none; margin-bottom:0;">
+          <div class="ig"><label data-en="First Side Length (ft)">প্রথম পাশ দৈর্ঘ্য (ফিট)</label><input type="number" id="tLen1_L" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Second Side Length (ft)">দ্বিতীয় পাশ দৈর্ঘ্য (ফিট)</label><input type="number" id="tLen2_L" placeholder="0" min="0" step="any" /></div>
+          <div class="ig" style="grid-column: span 2;"><label data-en="Shelf Width (in)">তাকের চওড়া/প্রস্থ (ইঞ্চি)</label><input type="number" id="tWid_L" placeholder="24" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Front Drop & Back Border">সামনের ড্রপ ও পিছনের বর্ডার</p>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Front Drop (in)">সামনের ঝুল/ড্রপ (ইঞ্চি)</label><input type="number" id="tFrontDrop" placeholder="2" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Back Border (in)">পিছনের বর্ডার (ইঞ্চি)</label><input type="number" id="tBackEdge" placeholder="3" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Tile/Slab Size & Packing">টাইলস / স্ল্যাবের সাইজ ও প্যাকিং</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Length (in)">দৈর্ঘ্য (ইঞ্চি)</label><input type="number" id="tTileL" placeholder="48" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width (in)">প্রস্থ (ইঞ্চি)</label><input type="number" id="tTileW" placeholder="24" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Wastage (%)">ওয়েস্টেজ (%)</label><input type="number" id="tWastage" placeholder="10" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Tiles per Box (pcs)">প্রতি বক্সে টাইলস (পিস)</label><input type="number" id="tPerBox" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Price (Optional)">মূল্য (ঐচ্ছিক)</p>
+        <div class="ig"><label data-en="Price per Tile/Slab (৳)">প্রতি টাইলস/স্ল্যাবের দাম (৳)</label><input type="number" id="tPricePerTile" placeholder="0" min="0" step="any" /></div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel tk" data-en="SHELF / SLAB Area Calculation">TAK / SLAB এরিয়া হিসাব</div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="card"><p class="clabel" data-en="Main Shelf Area">মূল তাকের এরিয়া</p><p class="cval" id="outTakTopArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Drop & Border Area">ড্রপ ও বর্ডার এরিয়া</p><p class="cval" id="outTakBorderArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Total Net Area">মোট নিট এরিয়া</p><p class="cval" id="outTakNetArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Area with Wastage">ওয়েস্টেজ সহ এরিয়া</p><p class="cval" id="outTakFinalArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel tt" data-en="Grand Total & Showroom Calculation">সর্বমোট ও শোরুম হিসাব</div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Total Tiles Required">সর্বমোট প্রয়োজনীয় টাইলস</div><div class="fsub" data-en="Rounded up with wastage">ওয়েস্টেজ সহ রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="outTakTotalTiles">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Required Boxes (Carton)">প্রয়োজনীয় বক্স (Carton)</div><div class="fsub" data-en="Rounded up to full box">ফুল বক্স রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="outTakBoxes">0</span><span class="funit" data-en=" boxes"> বক্স</span></div>
+        </div>
+        <div class="final-bar tt">
+          <div><div class="flabel" data-en="Total Price">সর্বমোট মূল্য</div><div class="fsub" id="outTakPriceSub">0 × ৳0</div></div>
+          <div><span class="fval" id="outTakTotalPrice">0</span><span class="funit"> ৳</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ৪. সিঁড়ির টাইলস ট্যাব -->
+  <div id="stair-tab" class="tab-content">
+    <div class="calc-grid">
+
+      <div class="panel">
+        <p class="sec" data-en="Stair Step Measurement">সিঁড়ির ধাপের পরিমাপ</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Total Number of Steps">মোট ধাপের সংখ্যা (Steps)</label><input type="number" id="stStepQty" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Step Width/Length (ft)">ধাপের চওড়া/দৈর্ঘ্য (ফিট)</label><input type="number" id="stStepLen" placeholder="3.5" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Tread (in)">ট্রেড/পা রাখার অংশ (ইঞ্চি)</label><input type="number" id="stTreadWid" placeholder="10" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Riser (in)">রাইজার/খাড়া অংশ (ইঞ্চি)</label><input type="number" id="stRiserHt" placeholder="6" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Landing (if any)">ল্যান্ডিং/চৌকি (যদি থাকে)</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Number of Landings">ল্যান্ডিং সংখ্যা</label><input type="number" id="stLandQty" placeholder="0" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Landing Length (ft)">ল্যান্ডিং দৈর্ঘ্য (ফিট)</label><input type="number" id="stLandLen" placeholder="0" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig" style="grid-column: span 2;"><label data-en="Landing Width (ft)">ল্যান্ডিং প্রস্থ (ফিট)</label><input type="number" id="stLandWid" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Tile Size & Packing">টাইলসের মাপ ও প্যাকিং</p>
+        <div class="grid2">
+          <div class="ig"><label data-en="Length (in)">দৈর্ঘ্য (ইঞ্চি)</label><input type="number" id="stTileL" placeholder="48" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Width (in)">প্রস্থ (ইঞ্চি)</label><input type="number" id="stTileW" placeholder="12" min="0" step="any" /></div>
+        </div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="ig"><label data-en="Wastage (%)">ওয়েস্টেজ (%)</label><input type="number" id="stWastage" placeholder="10" min="0" step="any" /></div>
+          <div class="ig"><label data-en="Tiles per Box (pcs)">প্রতি বক্সে টাইলস (পিস)</label><input type="number" id="stPerBox" placeholder="0" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="sec" data-en="Price (Optional)">মূল্য (ঐচ্ছিক)</p>
+        <div class="ig"><label data-en="Price per Tile (৳)">প্রতি টাইলসের দাম (৳)</label><input type="number" id="stPricePerTile" placeholder="0" min="0" step="any" /></div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel st" data-en="STAIR Area Calculation">STAIR এরিয়া হিসাব</div>
+        <div class="grid2" style="margin-bottom:0;">
+          <div class="card"><p class="clabel" data-en="Tread Area">ট্রেড (Tread) এরিয়া</p><p class="cval" id="outStTreadArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Riser Area">রাইজার (Riser) এরিয়া</p><p class="cval" id="outStRiserArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Landing Area">ল্যান্ডিং এরিয়া</p><p class="cval" id="outStLandArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+          <div class="card"><p class="clabel" data-en="Total Area (with wastage)">মোট এরিয়া (ওয়েস্টেজ সহ)</p><p class="cval" id="outStFinalArea">0.0</p><span class="cunit" data-en="Sqft">বর্গফুট</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="glabel tt" data-en="Grand Total & Showroom Calculation">সর্বমোট ও শোরুম হিসাব</div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Total Tiles Required">সর্বমোট প্রয়োজনীয় টাইলস</div><div class="fsub" data-en="Rounded up with wastage">ওয়েস্টেজ সহ রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="outStTotalTiles">0</span><span class="funit" data-en=" pcs"> পিস</span></div>
+        </div>
+        <div class="final-bar tt" style="margin-bottom:10px;">
+          <div><div class="flabel" data-en="Required Boxes (Carton)">প্রয়োজনীয় বক্স (Carton)</div><div class="fsub" data-en="Rounded up to full box">ফুল বক্স রাউন্ড-আপ</div></div>
+          <div><span class="fval" id="outStBoxes">0</span><span class="funit" data-en=" boxes"> বক্স</span></div>
+        </div>
+        <div class="final-bar tt">
+          <div><div class="flabel" data-en="Total Price">সর্বমোট মূল্য</div><div class="fsub" id="outStPriceSub">0 × ৳0</div></div>
+          <div><span class="fval" id="outStTotalPrice">0</span><span class="funit"> ৳</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+/* ---------- Language toggle ---------- */
+let currentLang = 'bn';
+
+function setLanguage(lang) {
+  if (lang !== 'en' && lang !== 'bn') return;
+  currentLang = lang;
+
+  document.querySelectorAll('[data-en]').forEach(el => {
+    if (!el.hasAttribute('data-bn')) {
+      el.setAttribute('data-bn', el.textContent);
+    }
+    el.textContent = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-bn');
+  });
+
+  document.querySelectorAll('[data-en-ph]').forEach(el => {
+    if (!el.hasAttribute('data-bn-ph')) {
+      el.setAttribute('data-bn-ph', el.getAttribute('placeholder') || '');
+    }
+    el.setAttribute('placeholder', lang === 'en' ? el.getAttribute('data-en-ph') : el.getAttribute('data-bn-ph'));
+  });
+
+  document.documentElement.lang = lang;
+  document.getElementById('langSwitch').checked = (lang === 'en');
+  document.getElementById('lblBn').classList.toggle('active', lang === 'bn');
+  document.getElementById('lblEn').classList.toggle('active', lang === 'en');
+
+  // Refresh dynamic/JS-generated text (status messages) in the new language
+  calculateFloorAndSkirting();
+  calculateWall();
+  calculateTak();
+  calculateStair();
+}
+
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+document.querySelectorAll('input[name="floorMode"]').forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    const isDim = e.target.value === 'dim';
+    document.getElementById('fDimInputs').style.display = isDim ? 'grid' : 'none';
+    document.getElementById('fSqftInputs').style.display = isDim ? 'none' : 'grid';
+    calculateFloorAndSkirting();
+  });
+});
+
+document.querySelectorAll('input[name="wallMode"]').forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    const isDim = e.target.value === 'dim';
+    document.getElementById('wDimInputs').style.display = isDim ? 'grid' : 'none';
+    document.getElementById('wSqftInputs').style.display = isDim ? 'none' : 'grid';
+    calculateWall();
+  });
+});
+
+document.querySelectorAll('input[name="takShape"]').forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    const isStraight = e.target.value === 'straight';
+    document.getElementById('straightInputs').style.display = isStraight ? 'grid' : 'none';
+    document.getElementById('lshapeInputs').style.display = isStraight ? 'none' : 'grid';
+    calculateTak();
+  });
+});
+
+function calculateFloorAndSkirting() {
+  const floorMode = document.querySelector('input[name="floorMode"]:checked').value;
+  const fLen = parseFloat(document.getElementById('fLen').value) || 0;
+  const fWid = parseFloat(document.getElementById('fWid').value) || 0;
+  const fSqft = parseFloat(document.getElementById('fSqft').value) || 0;
+  const fCustomPerimeter = parseFloat(document.getElementById('fCustomPerimeter').value) || 0;
+
+  const fTileL = parseFloat(document.getElementById('fTileL').value) || 0;
+  const fTileW = parseFloat(document.getElementById('fTileW').value) || 0;
+  const fWastagePct = parseFloat(document.getElementById('fWastage').value) || 0;
+  const fPerBox = parseFloat(document.getElementById('fPerBox').value) || 0;
+  const price = parseFloat(document.getElementById('pricePerTile').value) || 0;
+
+  const sDoorQty = parseFloat(document.getElementById('sDoorQty').value) || 0;
+  const sDoorWidth = parseFloat(document.getElementById('sDoorWidth').value) || 0;
+  const sHt = parseFloat(document.getElementById('sHt').value) || 0;
+  const sWastage = parseFloat(document.getElementById('sWastage').value) || 0;
+
+  const fArea = floorMode === 'dim' ? (fLen * fWid) : fSqft;
+  const singleTileAreaSqft = (fTileL > 0 && fTileW > 0) ? (fTileL * fTileW) / 144 : 0;
+
+  const fRawTiles = singleTileAreaSqft > 0 ? (fArea / singleTileAreaSqft) : 0;
+  const fFinalTiles = Math.ceil(fRawTiles * (1 + fWastagePct / 100));
+
+  let perimeter = 0;
+  if (floorMode === 'dim') {
+    perimeter = (fLen > 0 && fWid > 0) ? 2 * (fLen + fWid) : 0;
+  } else {
+    perimeter = fCustomPerimeter > 0 ? fCustomPerimeter : (fArea > 0 ? 4 * Math.sqrt(fArea) : 0); 
+  }
+  
+  const totalDoorWidth = sDoorQty * sDoorWidth;
+  const netPerimeter = Math.max(0, perimeter - totalDoorWidth);
+  const netPerimeterInches = netPerimeter * 12;
+
+  let sRawTiles = 0;
+  const tileLongSide = Math.max(fTileL, fTileW);
+  const tileShortSide = Math.min(fTileL, fTileW);
+
+  if (sHt > 0 && tileShortSide > 0 && tileLongSide > 0) {
+    const cutsPerTile = Math.floor(tileShortSide / sHt); 
+    if (cutsPerTile > 0) {
+      const coveragePerTileInches = tileLongSide * cutsPerTile;
+      sRawTiles = netPerimeterInches / coveragePerTileInches;
+    } else if (singleTileAreaSqft > 0) {
+      sRawTiles = (netPerimeter * (sHt / 12)) / singleTileAreaSqft;
+    }
+  } else if (singleTileAreaSqft > 0 && sHt > 0) {
+    sRawTiles = (netPerimeter * (sHt / 12)) / singleTileAreaSqft;
+  }
+
+  const skirtingAreaSqftDisplay = (sHt > 0) ? (netPerimeter * (sHt / 12)) : 0;
+  const sFinalTiles = Math.ceil(sRawTiles * (1 + sWastage / 100));
+
+  const totalTiles = fFinalTiles + sFinalTiles;
+  const totalBoxes = fPerBox > 0 ? Math.ceil(totalTiles / fPerBox) : 0;
+  const totalPrice = totalTiles * price;
+
+  document.getElementById('resFArea').textContent = fArea.toFixed(0);
+  document.getElementById('resSingleArea').textContent = singleTileAreaSqft.toFixed(2);
+  document.getElementById('resFRaw').textContent = fRawTiles.toFixed(1);
+  document.getElementById('resFFinal').textContent = fFinalTiles;
+
+  document.getElementById('resSPeri').textContent = netPerimeter.toFixed(1);
+  document.getElementById('resSArea').textContent = skirtingAreaSqftDisplay.toFixed(2);
+  document.getElementById('resSRaw').textContent = sRawTiles.toFixed(1);
+  document.getElementById('resSFinal').textContent = sFinalTiles;
+
+  document.getElementById('resTotalTiles').textContent = totalTiles;
+  document.getElementById('resTotalBoxes').textContent = totalBoxes;
+  document.getElementById('resPriceCalcSub').textContent = `${totalTiles} × ৳${price}`;
+  document.getElementById('resTotalPrice').textContent = totalPrice.toLocaleString('en-US');
+}
+
+function calculateWall() {
+  const wallMode = document.querySelector('input[name="wallMode"]:checked').value;
+  const wallLen = parseFloat(document.getElementById('wallLen').value) || 0;
+  const wallHt = parseFloat(document.getElementById('wallHt').value) || 0;
+  const totalWallSqftInput = parseFloat(document.getElementById('totalWallSqftInput').value) || 0;
+  const wallSqftHt = parseFloat(document.getElementById('wallSqftHt').value) || 0;
+
+  const tileW = parseFloat(document.getElementById('wTileW').value) || 0;
+  const tileL = parseFloat(document.getElementById('wTileL').value) || 0;
+  const wPerBox = parseFloat(document.getElementById('wPerBox').value) || 0;
+  const wPricePerTile = parseFloat(document.getElementById('wPricePerTile').value) || 0;
+
+  const splitLight = parseFloat(document.getElementById('splitLight').value) || 0;
+  const splitHL = parseFloat(document.getElementById('splitHL').value) || 0;
+  const splitDark = parseFloat(document.getElementById('splitDark').value) || 0;
+
+  const deductSqft = parseFloat(document.getElementById('deductSqft').value) || 0;
+  const wastagePct = parseFloat(document.getElementById('wWastage').value) || 0;
+
+  let grossWallArea = wallMode === 'dim' ? (wallLen * wallHt) : totalWallSqftInput;
+  let effectiveHt = wallMode === 'dim' ? wallHt : wallSqftHt;
+
+  const wallHtInches = effectiveHt * 12;
+  const tilesPerColumn = tileW > 0 ? (wallHtInches / tileW) : 0;
+
+  let totalCols = 0;
+  if (wallMode === 'dim' && tileL > 0) {
+    totalCols = (wallLen * 12) / tileL;
+  } else if (grossWallArea > 0 && effectiveHt > 0 && tileL > 0) {
+    const calculatedPerimeterFt = grossWallArea / effectiveHt;
+    totalCols = (calculatedPerimeterFt * 12) / tileL;
+  }
+
+  const totalSplitRows = splitLight + splitHL + splitDark;
+  const isValid = Math.abs(totalSplitRows - tilesPerColumn) < 0.05 && tilesPerColumn > 0;
+
+  const statusCard = document.getElementById('statusCard');
+  const isEn = currentLang === 'en';
+  if (tilesPerColumn === 0 || totalCols === 0) {
+    statusCard.className = 'status-bar error';
+    document.getElementById('statusMsg').textContent = isEn ? 'Enter the correct measurements above' : 'উপরে সঠিক মাপ ইনপুট দিন';
+    document.getElementById('statusIcon').textContent = '⚠️';
+    document.getElementById('statusText').textContent = isEn ? 'Pending' : 'অপেক্ষমাণ';
+  } else if (isValid) {
+    statusCard.className = 'status-bar success';
+    document.getElementById('statusMsg').textContent = isEn
+      ? `Correct! Total (${totalSplitRows.toFixed(1)} rows) matches per column.`
+      : `সঠিক! যোগফল (${totalSplitRows.toFixed(1)} সারি) প্রতি কলামের সাথে মিলেছে।`;
+    document.getElementById('statusIcon').textContent = '✅';
+    document.getElementById('statusText').textContent = isEn ? 'Correct' : 'সঠিক';
+  } else {
+    statusCard.className = 'status-bar error';
+    document.getElementById('statusMsg').textContent = isEn
+      ? `Total ${totalSplitRows} rows doesn't match (need approx. ${tilesPerColumn.toFixed(1)} rows)`
+      : `যোগফল ${totalSplitRows} সারি মিলছে না (প্রয়োজন প্রায় ${tilesPerColumn.toFixed(1)} সারি)`;
+    document.getElementById('statusIcon').textContent = '⚠️';
+    document.getElementById('statusText').textContent = isEn ? 'Wrong' : 'ভুল';
+  }
+
+  let rawLight = totalCols * splitLight;
+  let rawHL = totalCols * splitHL;
+  let rawDark = totalCols * splitDark;
+
+  const singleTileSqft = (tileW > 0 && tileL > 0) ? (tileW * tileL) / 144 : 0;
+  const deductTiles = singleTileSqft > 0 ? (deductSqft / singleTileSqft) : 0;
+
+  let lightTiles = 0, hlTiles = 0, darkTiles = 0, grandTotalCalculated = 0;
+  if (totalCols > 0 && totalSplitRows > 0) {
+    const ratioLight = splitLight / totalSplitRows;
+    const ratioHL = splitHL / totalSplitRows;
+    const ratioDark = splitDark / totalSplitRows;
+
+    const netLight = Math.max(0, rawLight - (deductTiles * ratioLight));
+    const netHL = Math.max(0, rawHL - (deductTiles * ratioHL));
+    const netDark = Math.max(0, rawDark - (deductTiles * ratioDark));
+
+    const netTotalWallTiles = netLight + netHL + netDark;
+    grandTotalCalculated = Math.ceil(netTotalWallTiles * (1 + wastagePct / 100));
+
+    if (netTotalWallTiles > 0) {
+      // Largest-remainder method: floor each share first, then hand out the
+      // few leftover tiles (at most 2) to whichever shares have the biggest
+      // fractional remainder. This guarantees light+HL+dark always adds up
+      // to grandTotalCalculated and none of them can ever go negative.
+      const exactLight = grandTotalCalculated * (netLight / netTotalWallTiles);
+      const exactHL = grandTotalCalculated * (netHL / netTotalWallTiles);
+      const exactDark = grandTotalCalculated * (netDark / netTotalWallTiles);
+
+      lightTiles = Math.floor(exactLight);
+      hlTiles = Math.floor(exactHL);
+      darkTiles = Math.floor(exactDark);
+
+      let remainder = grandTotalCalculated - (lightTiles + hlTiles + darkTiles);
+      const remainders = [
+        { key: 'light', frac: exactLight - lightTiles },
+        { key: 'hl', frac: exactHL - hlTiles },
+        { key: 'dark', frac: exactDark - darkTiles }
+      ].sort((a, b) => b.frac - a.frac);
+
+      for (let i = 0; i < remainder; i++) {
+        const key = remainders[i % remainders.length].key;
+        if (key === 'light') lightTiles++;
+        else if (key === 'hl') hlTiles++;
+        else darkTiles++;
+      }
+    }
+  }
+
+  document.getElementById('outWallHt').textContent = effectiveHt.toFixed(1);
+  document.getElementById('outTilesPerCol').textContent = tilesPerColumn.toFixed(2);
+  document.getElementById('outTotalCols').textContent = totalCols.toFixed(1);
+
+  document.getElementById('outLight').textContent = lightTiles;
+  document.getElementById('outHL').textContent = hlTiles;
+  document.getElementById('outDark').textContent = darkTiles;
+
+  document.getElementById('kpiTotal').textContent = grandTotalCalculated;
+
+  const wallBoxes = wPerBox > 0 ? Math.ceil(grandTotalCalculated / wPerBox) : 0;
+  const wallTotalPrice = grandTotalCalculated * wPricePerTile;
+
+  document.getElementById('outWallBoxes').textContent = wallBoxes;
+  document.getElementById('outWallPriceSub').textContent = `${grandTotalCalculated} × ৳${wPricePerTile}`;
+  document.getElementById('outWallTotalPrice').textContent = wallTotalPrice.toLocaleString('en-US');
+}
+
+function calculateTak() {
+  const shape = document.querySelector('input[name="takShape"]:checked').value;
+  
+  let totalLengthInches = 0;
+  let tackWidthInches = 0;
+
+  if (shape === 'straight') {
+    const len1Ft = parseFloat(document.getElementById('tLen1').value) || 0;
+    tackWidthInches = parseFloat(document.getElementById('tWid').value) || 0;
+    totalLengthInches = len1Ft * 12;
+  } else {
+    const len1Ft = parseFloat(document.getElementById('tLen1_L').value) || 0;
+    const len2Ft = parseFloat(document.getElementById('tLen2_L').value) || 0;
+    tackWidthInches = parseFloat(document.getElementById('tWid_L').value) || 0;
+    
+    const grossLengthInches = (len1Ft + len2Ft) * 12;
+    totalLengthInches = Math.max(0, grossLengthInches - tackWidthInches);
+  }
+
+  const frontDrop = parseFloat(document.getElementById('tFrontDrop').value) || 0;
+  const backEdge = parseFloat(document.getElementById('tBackEdge').value) || 0;
+
+  const tileL = parseFloat(document.getElementById('tTileL').value) || 0;
+  const tileW = parseFloat(document.getElementById('tTileW').value) || 0;
+  const wastagePct = parseFloat(document.getElementById('tWastage').value) || 0;
+  const perBox = parseFloat(document.getElementById('tPerBox').value) || 0;
+  const price = parseFloat(document.getElementById('tPricePerTile').value) || 0;
+
+  const topAreaSqft = (totalLengthInches * tackWidthInches) / 144;
+  const borderTotalWidthInches = frontDrop + backEdge;
+  const borderAreaSqft = (totalLengthInches * borderTotalWidthInches) / 144;
+
+  const netAreaSqft = topAreaSqft + borderAreaSqft;
+  const finalAreaSqft = netAreaSqft * (1 + wastagePct / 100);
+
+  const singleTileSqft = (tileL > 0 && tileW > 0) ? (tileL * tileW) / 144 : 0;
+  const totalTilesNeeded = singleTileSqft > 0 ? Math.ceil(finalAreaSqft / singleTileSqft) : 0;
+  const totalBoxes = perBox > 0 ? Math.ceil(totalTilesNeeded / perBox) : 0;
+  const totalPrice = totalTilesNeeded * price;
+
+  document.getElementById('outTakTopArea').textContent = topAreaSqft.toFixed(2);
+  document.getElementById('outTakBorderArea').textContent = borderAreaSqft.toFixed(2);
+  document.getElementById('outTakNetArea').textContent = netAreaSqft.toFixed(2);
+  document.getElementById('outTakFinalArea').textContent = finalAreaSqft.toFixed(2);
+
+  document.getElementById('outTakTotalTiles').textContent = totalTilesNeeded;
+  document.getElementById('outTakBoxes').textContent = totalBoxes;
+  document.getElementById('outTakPriceSub').textContent = `${totalTilesNeeded} × ৳${price}`;
+  document.getElementById('outTakTotalPrice').textContent = totalPrice.toLocaleString('en-US');
+}
+
+// ৫. নতুন: সিঁড়ি (STAIR TILES) ক্যালকুলেশন ফাংশন
+function calculateStair() {
+  const stepQty = parseFloat(document.getElementById('stStepQty').value) || 0;
+  const stepLenFt = parseFloat(document.getElementById('stStepLen').value) || 0;
+  const treadWidIn = parseFloat(document.getElementById('stTreadWid').value) || 0;
+  const riserHtIn = parseFloat(document.getElementById('stRiserHt').value) || 0;
+
+  const landQty = parseFloat(document.getElementById('stLandQty').value) || 0;
+  const landLenFt = parseFloat(document.getElementById('stLandLen').value) || 0;
+  const landWidFt = parseFloat(document.getElementById('stLandWid').value) || 0;
+
+  const tileL = parseFloat(document.getElementById('stTileL').value) || 0;
+  const tileW = parseFloat(document.getElementById('stTileW').value) || 0;
+  const wastagePct = parseFloat(document.getElementById('stWastage').value) || 0;
+  const perBox = parseFloat(document.getElementById('stPerBox').value) || 0;
+  const price = parseFloat(document.getElementById('stPricePerTile').value) || 0;
+
+  // ১. ট্রেড ও রাইজার এরিয়া (Sqft)
+  const treadAreaSqft = stepQty * (stepLenFt * (treadWidIn / 12));
+  const riserAreaSqft = stepQty * (stepLenFt * (riserHtIn / 12));
+
+  // ২. ল্যান্ডিং এরিয়া (Sqft)
+  const landingAreaSqft = landQty * (landLenFt * landWidFt);
+
+  // ৩. মোট এরিয়া ও ওয়েস্টেজ
+  const netStairSqft = treadAreaSqft + riserAreaSqft + landingAreaSqft;
+  const finalStairSqft = netStairSqft * (1 + wastagePct / 100);
+
+  // ৪. টাইলস ও কার্টুন পিস
+  const singleTileSqft = (tileL > 0 && tileW > 0) ? (tileL * tileW) / 144 : 0;
+  const totalTilesNeeded = singleTileSqft > 0 ? Math.ceil(finalStairSqft / singleTileSqft) : 0;
+  const totalBoxes = perBox > 0 ? Math.ceil(totalTilesNeeded / perBox) : 0;
+  const totalPrice = totalTilesNeeded * price;
+
+  // UI আপডেট
+  document.getElementById('outStTreadArea').textContent = treadAreaSqft.toFixed(2);
+  document.getElementById('outStRiserArea').textContent = riserAreaSqft.toFixed(2);
+  document.getElementById('outStLandArea').textContent = landingAreaSqft.toFixed(2);
+  document.getElementById('outStFinalArea').textContent = finalStairSqft.toFixed(2);
+
+  document.getElementById('outStTotalTiles').textContent = totalTilesNeeded;
+  document.getElementById('outStBoxes').textContent = totalBoxes;
+  document.getElementById('outStPriceSub').textContent = `${totalTilesNeeded} × ৳${price}`;
+  document.getElementById('outStTotalPrice').textContent = totalPrice.toLocaleString('en-US');
+}
+
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', () => {
+    calculateFloorAndSkirting();
+    calculateWall();
+    calculateTak();
+    calculateStair();
+  });
+});
+
+calculateFloorAndSkirting();
+calculateWall();
+calculateTak();
+calculateStair();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
