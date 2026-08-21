@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Outer rounded-square background ("white" card) — measured to match original exactly: rx=125 -->
+  <!-- 100% glass: background almost fully see-through, just a faint tint + edge so the shape still reads -->
+  <rect x="0" y="0" width="512" height="512" rx="125" fill="#EBF2FA" fill-opacity="0.12"/>
+  <rect x="0" y="0" width="512" height="512" rx="125" fill="none" stroke="#D9E3EE" stroke-opacity="0.5" stroke-width="2"/>
+
+  <!-- 2x2 tile grid — measured to match original exactly: 150x150 tiles, 49px gap, rx=29 -->
+  <rect x="81" y="81" width="150" height="150" rx="29" fill="#CAF0F8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="280" y="81" width="150" height="150" rx="29" fill="#90E0EF" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="81" y="280" width="150" height="150" rx="29" fill="#00B4D8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="280" y="280" width="150" height="150" rx="29" fill="#0077B6" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+</svg>
