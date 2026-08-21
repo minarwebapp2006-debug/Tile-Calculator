@@ -5,14 +5,14 @@
     </filter>
   </defs>
 
-  <!-- Outer rounded-square background ("white" card) — measured to match original exactly: rx=125 -->
-  <!-- 100% glass: background almost fully see-through, just a faint tint + edge so the shape still reads -->
-  <rect x="0" y="0" width="512" height="512" rx="125" fill="#EBF2FA" fill-opacity="0.12"/>
-  <rect x="0" y="0" width="512" height="512" rx="125" fill="none" stroke="#D9E3EE" stroke-opacity="0.5" stroke-width="2"/>
+  <!-- Full-bleed OPAQUE background — Android/iOS home-screen icons don't support transparency reliably,
+       so this must be solid. The OS applies its own shape mask (circle/squircle/rounded-square) on top. -->
+  <rect x="0" y="0" width="512" height="512" fill="#EBF2FA"/>
 
-  <!-- 2x2 tile grid — measured to match original exactly: 150x150 tiles, 49px gap, rx=29 -->
-  <rect x="81" y="81" width="150" height="150" rx="29" fill="#CAF0F8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="280" y="81" width="150" height="150" rx="29" fill="#90E0EF" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="81" y="280" width="150" height="150" rx="29" fill="#00B4D8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
-  <rect x="280" y="280" width="150" height="150" rx="29" fill="#0077B6" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <!-- 2x2 tile grid, scaled to ~62% of canvas so it stays inside Android's adaptive-icon safe zone (66%)
+       and doesn't get cropped by aggressive launcher masks. Same colors/ratio as the original design. -->
+  <rect x="98" y="98" width="136" height="136" rx="26" fill="#CAF0F8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="279" y="98" width="136" height="136" rx="26" fill="#90E0EF" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="98" y="279" width="136" height="136" rx="26" fill="#00B4D8" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
+  <rect x="279" y="279" width="136" height="136" rx="26" fill="#0077B6" stroke="#D9E3EE" stroke-width="2" filter="url(#softShadow)"/>
 </svg>

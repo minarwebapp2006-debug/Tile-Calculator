@@ -1,7 +1,7 @@
 // Simple offline-first service worker for My Tiles Calculator.
 // Bump this version string whenever the app files change, so users
 // automatically get the update next time they open the app online.
-const CACHE_NAME = 'tiles-calculator-v2';
+const CACHE_NAME = 'tiles-calculator-v3';
 
 const APP_SHELL = [
   './',
@@ -10,6 +10,8 @@ const APP_SHELL = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/icon-maskable-512.png',
+  './assets/favicon-glass.png',
+  './assets/favicon-glass-32.png',
   './assets/fonts/inter-400.woff2',
   './assets/fonts/inter-500.woff2',
   './assets/fonts/inter-600.woff2',

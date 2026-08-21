@@ -6,7 +6,10 @@
 <title>My Tiles Calculator - Ultimate Edition</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#0077B6" />
-<link rel="icon" href="assets/icon-192.png" />
+<!-- Browser tab favicon: glass/transparent effect (browsers render this against the tab bar, so transparency shows correctly) -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-glass-32.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-glass.png" />
+<!-- Home-screen icon (iOS "Add to Home Screen"): solid/opaque — iOS fills transparent areas with black, so this must stay solid -->
 <link rel="apple-touch-icon" href="assets/icon-192.png" />
 <style>
 /* Fonts loaded locally from /assets/fonts so the app works fully offline */
