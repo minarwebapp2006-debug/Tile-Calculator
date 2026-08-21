@@ -1180,10 +1180,12 @@ document.querySelectorAll('input').forEach(input => {
   });
 });
 
-calculateFloorAndSkirting();
-calculateWall();
-calculateTak();
-calculateStair();
+// বাগ ফিক্স: আগে পেজ লোড হওয়া মাত্রই calculate ফাংশনগুলো নিজে থেকে চলে যেত,
+// ফলে ইউজার কিছু না লিখেই ডিফল্ট টাইলস মাপ (যেমন ২৪x২৪ ইঞ্চি) দিয়ে হিসাব হয়ে
+// "Single Tile: 4.00" এর মতো একটা মান দেখাতো — যেটা দেখে বোঝা যাচ্ছিল না এটা
+// কোথা থেকে এলো। এখন এই অটো-কলগুলো বাদ দেওয়া হয়েছে, তাই সব রেজাল্ট কার্ড
+// HTML-এর ডিফল্ট "0" মান নিয়েই থাকবে, যতক্ষণ না ইউজার নিজে কোনো ইনপুট
+// ফিল্ডে টাইপ করছে (তখনই উপরের 'input' লিসেনার প্রথমবার হিসাব চালাবে)।
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
